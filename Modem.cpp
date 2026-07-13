@@ -22,6 +22,7 @@
 #include "YSFDefines.h"
 #include "P25Defines.h"
 #include "NXDNDefines.h"
+#include "M17Defines.h"
 #include "POCSAGDefines.h"
 #include "Thread.h"
 #include "Modem.h"
@@ -138,6 +139,7 @@ const unsigned char CAP1_DMR    = 0x02U;
 const unsigned char CAP1_YSF    = 0x04U;
 const unsigned char CAP1_P25    = 0x08U;
 const unsigned char CAP1_NXDN   = 0x10U;
+const unsigned char CAP1_M17    = 0x20U;
 const unsigned char CAP1_FM     = 0x40U;
 const unsigned char CAP2_POCSAG = 0x01U;
 
@@ -395,7 +397,7 @@ void CModem::setRFParams(unsigned int rxFrequency, int rxOffset, unsigned int tx
 #endif
 }
 
-void CModem::setModeParams(bool dstarEnabled, bool dmrEnabled, bool ysfEnabled, bool p25Enabled, bool nxdnEnabled, bool pocsagEnabled, bool fmEnabled)
+void CModem::setModeParams(bool dstarEnabled, bool dmrEnabled, bool ysfEnabled, bool p25Enabled, bool nxdnEnabled, bool m17Enabled, bool pocsagEnabled, bool fmEnabled)
 {
 #if defined(USE_DSTAR)
 	m_dstarEnabled  = dstarEnabled;
@@ -421,12 +423,9 @@ void CModem::setModeParams(bool dstarEnabled, bool dmrEnabled, bool ysfEnabled, 
 #if defined(USE_FM)
 	m_fmEnabled     = fmEnabled;
 #endif
-#if defined(USE_AX25)
-	m_ax25Enabled   = ax25Enabled;
-#endif
 }
 
-void CModem::setLevels(float rxLevel, float cwIdTXLevel, float dstarTXLevel, float dmrTXLevel, float ysfTXLevel, float p25TXLevel, float nxdnTXLevel, float pocsagTXLevel, float fmTXLevel)
+void CModem::setLevels(float rxLevel, float cwIdTXLevel, float dstarTXLevel, float dmrTXLevel, float ysfTXLevel, float p25TXLevel, float nxdnTXLevel, float m17TXLevel, float pocsagTXLevel, float fmTXLevel)
 {
 	m_rxLevel       = rxLevel;
 	m_cwIdTXLevel   = cwIdTXLevel;
@@ -453,9 +452,6 @@ void CModem::setLevels(float rxLevel, float cwIdTXLevel, float dstarTXLevel, flo
 #endif
 #if defined(USE_FM)
 	m_fmTXLevel     = fmTXLevel;
-#endif
-#if defined(USE_AX25)
-	m_ax25TXLevel   = ax25TXLevel;
 #endif
 }
 
@@ -2334,6 +2330,11 @@ bool CModem::hasNXDN() const
 	return (m_capabilities1 & CAP1_NXDN) == CAP1_NXDN;
 }
 
+bool CModem::hasM17() const
+{
+	return (m_capabilities1 & CAP1_M17) == CAP1_M17;
+}
+
 bool CModem::hasFM() const
 {
 	return (m_capabilities1 & CAP1_FM) == CAP1_FM;
@@ -2429,8 +2430,6 @@ bool CModem::readVersion()
 					::strcat(modeText, " FM");
 				if (hasPOCSAG())
 					::strcat(modeText, " POCSAG");
-				if (hasAX25())
-					::strcat(modeText, " AX.25");
 				LogInfo(modeText);
 
 				return true;

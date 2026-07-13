@@ -27,7 +27,7 @@
 #define	USE_NXDN
 #define	USE_POCSAG
 #define	USE_FM
-#define	USE_AX25
+// #define	USE_AX25   // Waypoint: AX.25 not restored (out of scope; source files absent)
 #define	USE_M17
 
 const unsigned char MODE_IDLE    = 0U;
