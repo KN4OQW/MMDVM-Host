@@ -297,8 +297,8 @@ m_fmExtAudioBoost(1U),
 m_fmModeHang(10U),
 #if defined(USE_AX25)
 m_ax25Enabled(false),
-#endif
 m_ax25TXDelay(300U),
+#endif
 #if defined(USE_AX25)
 m_ax25RXTwist(6),
 m_ax25SlotTime(30U),
@@ -652,7 +652,7 @@ bool CConf::read()
 			else if (::strcmp(key, "PTTInvert") == 0)
 				m_modemPTTInvert = ::atoi(value) == 1;
 			else if (::strcmp(key, "TXDelay") == 0)
-				m_ax25TXDelay = m_modemTXDelay = (unsigned int)::atoi(value);
+				m_modemTXDelay = (unsigned int)::atoi(value);
 #if defined(USE_DMR)
 			else if (::strcmp(key, "DMRDelay") == 0)
 				m_modemDMRDelay = (unsigned int)::atoi(value);

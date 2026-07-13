@@ -113,6 +113,12 @@ public:
 #if defined(USE_POCSAG)
 	float        getModemPOCSAGTXLevel() const;
 #endif
+#if defined(USE_M17)
+	float        getModemM17TXLevel() const;
+#endif
+#if defined(USE_AX25)
+	float        getModemAX25TXLevel() const;
+#endif
 #if defined(USE_FM)
 	float        getModemFMTXLevel() const;
 #endif
@@ -203,6 +209,25 @@ public:
 	bool         getNXDNRemoteGateway() const;
 	unsigned int getNXDNTXHang() const;
 	unsigned int getNXDNModeHang() const;
+#endif
+
+#if defined(USE_M17)
+	// The M17 section
+	bool         getM17Enabled() const;
+	unsigned int getM17CAN() const;
+	bool         getM17SelfOnly() const;
+	bool         getM17AllowEncryption() const;
+	unsigned int getM17TXHang() const;
+	unsigned int getM17ModeHang() const;
+#endif
+#if defined(USE_AX25)
+	// The AX.25 section
+	bool         getAX25Enabled() const;
+	unsigned int getAX25TXDelay() const;
+	int          getAX25RXTwist() const;
+	unsigned int getAX25SlotTime() const;
+	unsigned int getAX25PPersist() const;
+	bool         getAX25Trace() const;
 #endif
 
 #if defined(USE_POCSAG)
@@ -310,6 +335,22 @@ public:
 	bool         getNXDNNetworkDebug() const;
 #endif
 
+#if defined(USE_M17)
+	// The M17 Network section
+	bool         getM17NetworkEnabled() const;
+	std::string  getM17GatewayAddress() const;
+	unsigned short getM17GatewayPort() const;
+	std::string  getM17LocalAddress() const;
+	unsigned short getM17LocalPort() const;
+	unsigned int getM17NetworkModeHang() const;
+	bool         getM17NetworkDebug() const;
+#endif
+#if defined(USE_AX25)
+	// The AX.25 Network section
+	bool         getAX25NetworkEnabled() const;
+	bool         getAX25NetworkDebug() const;
+#endif
+
 #if defined(USE_POCSAG)
 	// The POCSAG Network section
 	bool         getPOCSAGNetworkEnabled() const;
@@ -407,6 +448,12 @@ private:
 	float        m_modemP25TXLevel;
 	float        m_modemNXDNTXLevel;
 	float        m_modemPOCSAGTXLevel;
+#if defined(USE_M17)
+	float        m_modemM17TXLevel;
+#endif
+#if defined(USE_AX25)
+	float        m_modemAX25TXLevel;
+#endif
 	float        m_modemFMTXLevel;
 	std::string  m_modemRSSIMappingFile;
 	bool         m_modemUseCOSAsLockout;
@@ -496,6 +543,23 @@ private:
 	unsigned int m_nxdnTXHang;
 #endif
 	unsigned int m_nxdnModeHang;
+
+#if defined(USE_M17)
+	bool         m_m17Enabled;
+	unsigned int m_m17CAN;
+	bool         m_m17SelfOnly;
+	bool         m_m17AllowEncryption;
+	unsigned int m_m17TXHang;
+	unsigned int m_m17ModeHang;
+#endif
+#if defined(USE_AX25)
+	bool         m_ax25Enabled;
+	unsigned int m_ax25TXDelay;
+	int          m_ax25RXTwist;
+	unsigned int m_ax25SlotTime;
+	unsigned int m_ax25PPersist;
+	bool         m_ax25Trace;
+#endif
 
 #if defined(USE_POCSAG)
 	bool         m_pocsagEnabled;
@@ -605,6 +669,20 @@ private:
 	unsigned int m_nxdnNetworkModeHang;
 #if defined(USE_NXDN)
 	bool         m_nxdnNetworkDebug;
+#endif
+
+#if defined(USE_M17)
+	bool         m_m17NetworkEnabled;
+	std::string  m_m17GatewayAddress;
+	unsigned short m_m17GatewayPort;
+	std::string  m_m17LocalAddress;
+	unsigned short m_m17LocalPort;
+	unsigned int m_m17NetworkModeHang;
+	bool         m_m17NetworkDebug;
+#endif
+#if defined(USE_AX25)
+	bool         m_ax25NetworkEnabled;
+	bool         m_ax25NetworkDebug;
 #endif
 
 #if defined(USE_POCSAG)

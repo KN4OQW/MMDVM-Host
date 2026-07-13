@@ -30,6 +30,8 @@
 #include "YSFControl.h"
 #include "P25Control.h"
 #include "NXDNControl.h"
+#include "M17Control.h"
+#include "M17Network.h"
 #include "NXDNLookup.h"
 #include "YSFNetwork.h"
 #include "P25Network.h"
@@ -188,59 +190,6 @@ private:
 	std::string     m_lockFileName;
 	CRemoteControl* m_remoteControl;
 	bool            m_fixedMode;
-  CConf           m_conf;
-  CModem*         m_modem;
-  CDStarControl*  m_dstar;
-  CDMRControl*    m_dmr;
-  CYSFControl*    m_ysf;
-  CP25Control*    m_p25;
-  CNXDNControl*   m_nxdn;
-  CPOCSAGControl* m_pocsag;
-  CFMControl*     m_fm;
-  CDStarNetwork*  m_dstarNetwork;
-  IDMRNetwork*    m_dmrNetwork;
-  CYSFNetwork*    m_ysfNetwork;
-  CP25Network*    m_p25Network;
-  INXDNNetwork*   m_nxdnNetwork;
-  CPOCSAGNetwork* m_pocsagNetwork;
-  CFMNetwork*     m_fmNetwork;
-  CDisplay*       m_display;
-  unsigned char   m_mode;
-  unsigned int    m_dstarRFModeHang;
-  unsigned int    m_dmrRFModeHang;
-  unsigned int    m_ysfRFModeHang;
-  unsigned int    m_p25RFModeHang;
-  unsigned int    m_nxdnRFModeHang;
-  unsigned int    m_fmRFModeHang;
-  unsigned int    m_dstarNetModeHang;
-  unsigned int    m_dmrNetModeHang;
-  unsigned int    m_ysfNetModeHang;
-  unsigned int    m_p25NetModeHang;
-  unsigned int    m_nxdnNetModeHang;
-  unsigned int    m_pocsagNetModeHang;
-  unsigned int    m_fmNetModeHang;
-  CTimer          m_modeTimer;
-  CTimer          m_dmrTXTimer;
-  CTimer          m_cwIdTimer;
-  bool            m_duplex;
-  unsigned int    m_timeout;
-  bool            m_dstarEnabled;
-  bool            m_dmrEnabled;
-  bool            m_ysfEnabled;
-  bool            m_p25Enabled;
-  bool            m_nxdnEnabled;
-  bool            m_pocsagEnabled;
-  bool            m_fmEnabled;
-  unsigned int    m_cwIdTime;
-  CDMRLookup*     m_dmrLookup;
-  CNXDNLookup*    m_nxdnLookup;
-  std::string     m_callsign;
-  unsigned int    m_id;
-  std::string     m_cwCallsign;
-  bool            m_lockFileEnabled;
-  std::string     m_lockFileName;
-  CRemoteControl* m_remoteControl;
-  bool            m_fixedMode;
 
 	CTimer          m_serialTimer;
 	unsigned char*  m_serialBuffer;
@@ -283,23 +232,9 @@ private:
 	void remoteControl(const std::string& commandString);
 	void processModeCommand(unsigned char mode, unsigned int timeout);
 	void processEnableCommand(bool& mode, bool enabled);
-  void readParams();
-  bool createModem();
-  bool createDStarNetwork();
-  bool createDMRNetwork();
-  bool createYSFNetwork();
-  bool createP25Network();
-  bool createNXDNNetwork();
-  bool createPOCSAGNetwork();
-  bool createFMNetwork();
 
-  void remoteControl();
-  void processModeCommand(unsigned char mode, unsigned int timeout);
 
 	void setMode(unsigned char mode);
-  void setMode(unsigned char mode);
-  void enableModemMode(bool& mode, bool enabled);
-  void processEnableModeCommand(unsigned char mode, bool hasController, bool& modeEnabled, bool enableMode);
 
 	void createLockFile(const char* mode) const;
 	void removeLockFile() const;
