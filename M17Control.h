@@ -24,7 +24,6 @@
 #include "M17Defines.h"
 #include "RingBuffer.h"
 #include "StopWatch.h"
-#include "Display.h"
 #include "Defines.h"
 #include "M17LSF.h"
 #include "Timer.h"
@@ -34,7 +33,7 @@
 
 class CM17Control {
 public:
-	CM17Control(const std::string& callsign, unsigned int can, bool selfOnly, bool allowEncryption, CM17Network* network, CDisplay* display, unsigned int timeout, bool duplex, CRSSIInterpolator* rssiMapper);
+	CM17Control(const std::string& callsign, unsigned int can, bool selfOnly, bool allowEncryption, CM17Network* network, unsigned int timeout, bool duplex, CRSSIInterpolator* rssiMapper);
 	~CM17Control();
 
 	bool writeModem(unsigned char* data, unsigned int len);
@@ -53,7 +52,6 @@ private:
 	bool                       m_selfOnly;
 	bool                       m_allowEncryption;
 	CM17Network*               m_network;
-	CDisplay*                  m_display;
 	bool                       m_duplex;
 	CRingBuffer<unsigned char> m_queue;
 	std::string                m_source;

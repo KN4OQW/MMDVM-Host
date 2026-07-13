@@ -57,13 +57,12 @@ const unsigned char BIT_MASK_TABLE[] = { 0x80U, 0x40U, 0x20U, 0x10U, 0x08U, 0x04
 #define WRITE_BIT(p,i,b) p[(i)>>3] = (b) ? (p[(i)>>3] | BIT_MASK_TABLE[(i)&7]) : (p[(i)>>3] & ~BIT_MASK_TABLE[(i)&7])
 #define READ_BIT(p,i)    (p[(i)>>3] & BIT_MASK_TABLE[(i)&7])
 
-CM17Control::CM17Control(const std::string& callsign, unsigned int can, bool selfOnly, bool allowEncryption, CM17Network* network, CDisplay* display, unsigned int timeout, bool duplex, CRSSIInterpolator* rssiMapper) :
+CM17Control::CM17Control(const std::string& callsign, unsigned int can, bool selfOnly, bool allowEncryption, CM17Network* network, unsigned int timeout, bool duplex, CRSSIInterpolator* rssiMapper) :
 m_callsign(callsign),
 m_can(can),
 m_selfOnly(selfOnly),
 m_allowEncryption(allowEncryption),
 m_network(network),
-m_display(display),
 m_duplex(duplex),
 m_queue(5000U, "M17 Control"),
 m_source(),
@@ -99,7 +98,6 @@ m_rssiCount(0U),
 m_enabled(true),
 m_fp(nullptr)
 {
-	assert(display != nullptr);
 	assert(rssiMapper != nullptr);
 
 	m_rfText  = new char[4U * M17_META_LENGTH_BYTES];
@@ -357,7 +355,6 @@ bool CM17Control::writeModem(unsigned char* data, unsigned int len)
 		m_rfErrs += errors;
 
 		float ber = float(m_rfErrs) / float(m_rfBits);
-		m_display->writeM17BER(ber);
 
 		if (m_duplex) {
 			unsigned char rfData[2U + M17_FRAME_LENGTH_BYTES];
@@ -503,7 +500,6 @@ void CM17Control::writeEndRF()
 	m_rfCollectedLSF.reset();
 
 	if (m_netState == RPT_NET_STATE::IDLE) {
-		m_display->clearM17();
 
 		if (m_network != nullptr)
 			m_network->reset();
@@ -526,7 +522,6 @@ void CM17Control::writeEndNet()
 
 	m_netLSF.reset();
 
-	m_display->clearM17();
 
 	if (m_network != nullptr)
 		m_network->reset();
@@ -589,7 +584,6 @@ void CM17Control::writeNetwork()
 			return;
 		}
 
-		m_display->writeM17(m_source.c_str(), m_dest.c_str(), "N");
 
 		m_netTimeoutTimer.start();
 		m_elapsed.start();
@@ -783,7 +777,6 @@ bool CM17Control::processRFHeader(bool lateEntry)
 		return false;
 	}
 
-	m_display->writeM17(m_source.c_str(), m_dest.c_str(), "R");
 
 	createRFLSF(true);
 
