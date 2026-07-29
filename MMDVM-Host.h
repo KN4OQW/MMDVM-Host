@@ -177,6 +177,7 @@ private:
 	bool            m_fmEnabled;
 	bool            m_ax25Enabled;
 	unsigned int    m_cwIdTime;
+	bool            m_cwIdPending;
 #if defined(USE_DMR) || defined(USE_P25)
 	CDMRLookup*     m_dmrLookup;
 #endif
