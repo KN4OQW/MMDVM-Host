@@ -256,6 +256,7 @@ m_nxdnEnabled(false),
 m_pocsagEnabled(false),
 m_fmEnabled(false),
 m_cwIdTime(0U),
+m_cwIdPending(false),
 #if defined(USE_DMR) || defined(USE_P25)
 m_dmrLookup(nullptr),
 #endif
@@ -1461,16 +1462,28 @@ int CMMDVMHost::run()
 		if (m_fmNetwork != nullptr)
 			m_fmNetwork->clock(ms);
 #endif
+		// The identification interval free-runs: nothing stops it while traffic
+		// is passing, so a busy channel can no longer postpone identification
+		// indefinitely. When the interval elapses the identification is latched
+		// pending and held until the air is clear - the station transmitting has
+		// keyed off, we are not transmitting, and the mode hang has dropped us
+		// back to idle - and only then is it keyed. The wait matters twice over:
+		// the modem NAKs a CW Id sent in any state but idle, so an
+		// identification transmitted early is an identification thrown away.
 		m_cwIdTimer.clock(ms);
 		if (m_cwIdTimer.isRunning() && m_cwIdTimer.hasExpired()) {
-			if (!m_modem->hasTX()){
-				LogDebug("sending CW ID");
-				writeJSONMessage("Sending CW ID");
-				m_modem->sendCWId(m_cwCallsign);
+			m_cwIdPending = true;
+			m_cwIdTimer.stop();
+		}
 
-				m_cwIdTimer.setTimeout(m_cwIdTime);
-				m_cwIdTimer.start();
-			}
+		if (m_cwIdPending && m_mode == MODE_IDLE && !m_modem->hasTX() && !m_modem->hasCD()) {
+			LogDebug("sending CW ID");
+			writeJSONMessage("Sending CW ID");
+			m_modem->sendCWId(m_cwCallsign);
+
+			m_cwIdPending = false;
+			m_cwIdTimer.setTimeout(m_cwIdTime);
+			m_cwIdTimer.start();
 		}
 
 #if defined(USE_DMR)
@@ -2437,7 +2450,6 @@ void CMMDVMHost::setMode(unsigned char mode)
 			m_modem->setMode(MODE_DSTAR);
 			m_mode = MODE_DSTAR;
 			m_modeTimer.start();
-			m_cwIdTimer.stop();
 			createLockFile("D-Star");
 			writeJSONMode("D-Star");
 		}
@@ -2521,7 +2533,6 @@ void CMMDVMHost::setMode(unsigned char mode)
 			}
 			m_mode = MODE_DMR;
 			m_modeTimer.start();
-			m_cwIdTimer.stop();
 			createLockFile("DMR");
 			writeJSONMode("DMR");
 		}
@@ -2601,7 +2612,6 @@ void CMMDVMHost::setMode(unsigned char mode)
 			m_modem->setMode(MODE_YSF);
 			m_mode = MODE_YSF;
 			m_modeTimer.start();
-			m_cwIdTimer.stop();
 			createLockFile("System Fusion");
 			writeJSONMode("YSF");
 		}
@@ -2681,7 +2691,6 @@ void CMMDVMHost::setMode(unsigned char mode)
 			m_modem->setMode(MODE_P25);
 			m_mode = MODE_P25;
 			m_modeTimer.start();
-			m_cwIdTimer.stop();
 			createLockFile("P25");
 			writeJSONMode("P25");
 		}
@@ -2761,7 +2770,6 @@ void CMMDVMHost::setMode(unsigned char mode)
 			m_modem->setMode(MODE_NXDN);
 			m_mode = MODE_NXDN;
 			m_modeTimer.start();
-			m_cwIdTimer.stop();
 			createLockFile("NXDN");
 			writeJSONMode("NXDN");
 		}
@@ -2841,7 +2849,6 @@ void CMMDVMHost::setMode(unsigned char mode)
 			m_modem->setMode(MODE_M17);
 			m_mode = MODE_M17;
 			m_modeTimer.start();
-			m_cwIdTimer.stop();
 			createLockFile("M17");
 			writeJSONMode("M17");
 		}
@@ -2920,7 +2927,6 @@ void CMMDVMHost::setMode(unsigned char mode)
 		m_modem->setMode(MODE_POCSAG);
 		m_mode = MODE_POCSAG;
 		m_modeTimer.start();
-		m_cwIdTimer.stop();
 		createLockFile("POCSAG");
 		writeJSONMode("POCSAG");
 		break;
@@ -3005,7 +3011,6 @@ void CMMDVMHost::setMode(unsigned char mode)
 			m_modem->setMode(MODE_FM);
 			m_mode = MODE_FM;
 			m_modeTimer.start();
-			m_cwIdTimer.stop();
 			createLockFile("FM");
 			writeJSONMode("FM");
 		}
@@ -3094,7 +3099,6 @@ void CMMDVMHost::setMode(unsigned char mode)
 		m_modem->setMode(MODE_IDLE);
 		m_mode = MODE_LOCKOUT;
 		m_modeTimer.stop();
-		m_cwIdTimer.stop();
 		removeLockFile();
 		writeJSONMode("lockout");
 		break;
@@ -3181,7 +3185,6 @@ void CMMDVMHost::setMode(unsigned char mode)
 #endif
 		m_mode = MODE_ERROR;
 		m_modeTimer.stop();
-		m_cwIdTimer.stop();
 		removeLockFile();
 		writeJSONMode("error");
 		break;
@@ -3267,13 +3270,19 @@ void CMMDVMHost::setMode(unsigned char mode)
 #endif
 		m_modem->setMode(MODE_IDLE);
 		if (m_mode == MODE_ERROR) {
+			// Coming back from the error state we have been off the air for an
+			// unknown length of time, so identify now and start the interval
+			// afresh. Any identification that fell due while we were down is
+			// satisfied by this one.
 			m_modem->sendCWId(m_callsign);
+			m_cwIdPending = false;
 			m_cwIdTimer.setTimeout(m_cwIdTime);
 			m_cwIdTimer.start();
-		} else {
-			m_cwIdTimer.setTimeout(m_cwIdTime / 4U);
-			m_cwIdTimer.start();
 		}
+		// Otherwise the interval is left exactly where it was. Rewinding it on
+		// every drop back to idle - which is what used to happen here - meant a
+		// channel busier than the rewind never reached the interval at all, and
+		// so never identified.
 		m_mode = MODE_IDLE;
 		m_modeTimer.stop();
 		removeLockFile();
