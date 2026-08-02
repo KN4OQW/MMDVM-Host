@@ -19,6 +19,10 @@
 #if !defined(CONF_H)
 #define	CONF_H
 
+// The mode getters below are switched on by the USE_ macros, so this header
+// has to come first rather than relying on whoever includes us.
+#include "Defines.h"
+
 #include <string>
 #include <vector>
 
