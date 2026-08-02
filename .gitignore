@@ -2,6 +2,7 @@ Debug
 Release
 x64
 MMDVM-Host
+MMDVM-Host-Test
 Images
 *.o
 *.d
